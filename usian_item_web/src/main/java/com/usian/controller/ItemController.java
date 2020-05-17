@@ -16,6 +16,10 @@ public class ItemController {
     @Autowired
     private ItemServiceFeign itemServiceFeign;
 
+    /*
+    *查询商品详情
+    *
+    * */
     @RequestMapping("/selectItemInfo")
     public Result selectItemInfo(Long itemId){
         TbItem tbItem = itemServiceFeign.selectItemInfo(itemId);
@@ -25,6 +29,10 @@ public class ItemController {
         return Result.error("没有结果");
     }
 
+    /*
+    * 分页查询商品列表
+    *
+    * */
     @RequestMapping("/selectTbItemAllByPage")
     public Result selectTbItemAllByPage(@RequestParam(defaultValue = "1") Integer page,
                                         @RequestParam(defaultValue = "2") Long rows){

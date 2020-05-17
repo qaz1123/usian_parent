@@ -11,12 +11,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/service/itemCat")
 public class ItemCatController {
+
     @Autowired
     private ItemCatService itemCatService;
 
+    /*
+    *根据id查询商品类目
+    * */
     @RequestMapping("/selectItemCategoryByParentId")
     public List<TbItemCat> selectItemCategoryByParentId(Long id){
-
         return itemCatService.selectItemCategoryByParentId(id);
     }
 }
