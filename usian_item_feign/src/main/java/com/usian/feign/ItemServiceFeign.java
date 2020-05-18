@@ -7,6 +7,7 @@ import com.usian.utis.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -39,4 +40,7 @@ public interface ItemServiceFeign {
      * */
     @RequestMapping("/service/itemParam/selectItemParamByItemCatId/{itemCatId}")
     TbItemParam selectItemParamByItemCatId(@PathVariable Long itemCatId);
+
+    @RequestMapping("/service/item/insertTbItem")
+    Integer insertTbItem(TbItem tbItem, @RequestParam String desc,@RequestParam String itemParams);
 }
