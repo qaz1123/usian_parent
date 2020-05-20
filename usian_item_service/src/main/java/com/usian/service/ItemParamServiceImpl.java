@@ -66,4 +66,9 @@ public class ItemParamServiceImpl implements ItemParamService {
         tbItemParam.setCreated(date);
         return tbItemParamMapper.insertSelective(tbItemParam);
     }
+
+    @Override
+    public Integer deleteItemParamById(Long id) {
+        return tbItemParamMapper.deleteByPrimaryKey(id);
+    }
 }

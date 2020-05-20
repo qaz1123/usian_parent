@@ -55,4 +55,8 @@ public interface ItemServiceFeign {
      * */
     @RequestMapping("/service/itemParam/insertItemParam")
     Integer insertItemParam(@RequestParam Long itemCatId,@RequestParam String paramData);
+
+    //删除商品规格
+    @RequestMapping("/service/itemParam/deleteItemParamById")
+    Integer deleteItemParamById(@RequestParam Long id);
 }

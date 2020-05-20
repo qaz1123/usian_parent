@@ -53,4 +53,14 @@ public class ItemParamController {
         }
         return Result.error("添加失败了");
     }
+
+    //删除商品规格
+    @RequestMapping("/deleteItemParamById")
+    public Result deleteItemParamById(Long id){
+     Integer deNum =    itemServiceFeign.deleteItemParamById(id);
+     if(deNum==1){
+         return Result.ok();
+     }
+     return  Result.error("删除失败");
+    }
 }
