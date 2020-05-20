@@ -43,4 +43,16 @@ public interface ItemServiceFeign {
 
     @RequestMapping("/service/item/insertTbItem")
     Integer insertTbItem(TbItem tbItem, @RequestParam String desc,@RequestParam String itemParams);
+
+    /*
+     * 商品规格参数查询
+     * */
+    @RequestMapping("/service/itemParam/selectItemParamAll")
+    PageResult selectItemParamAll(@RequestParam Integer page, @RequestParam Integer rows);
+
+    /*
+     * 添加商品规格
+     * */
+    @RequestMapping("/service/itemParam/insertItemParam")
+    Integer insertItemParam(@RequestParam Long itemCatId,@RequestParam String paramData);
 }
