@@ -3,6 +3,7 @@ package com.usian.controller;
 import com.usian.pojo.TbContentCategory;
 import com.usian.service.ContentCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,4 +23,21 @@ public class ContentCategoryController {
         return contentCategoryService.selectContentCategoryByParentId(id);
     }
 
+    //内容分类添加
+    @RequestMapping("/insertContentCategory")
+    public  Integer insertContentCategory(@RequestBody TbContentCategory tbContentCategory){
+        return contentCategoryService.insertContentCategory(tbContentCategory);
+    }
+
+    //内容分类删除
+    @RequestMapping("/deleteContentCategoryById")
+    public Integer deleteContentCategoryById( Long categoryId){
+        return  contentCategoryService.deleteContentCategoryById(categoryId);
+    }
+
+    //内容分类修改
+    @RequestMapping("/updateContentCategory")
+    public Integer updateContentCategory(@RequestBody TbContentCategory tbContentCategory){
+        return  contentCategoryService.updateContentCategory(tbContentCategory);
+    }
 }

@@ -69,6 +69,7 @@ public class ItemParamServiceImpl implements ItemParamService {
 
     @Override
     public Integer deleteItemParamById(Long id) {
-        return tbItemParamMapper.deleteByPrimaryKey(id);
+         Integer deNum =  tbItemParamMapper.deleteByPrimaryKey(id);
+        return deNum;
     }
 }
