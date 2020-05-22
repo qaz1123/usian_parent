@@ -52,4 +52,13 @@ public class ItemController {
         return Result.error("添加失败");
     }
 
+    //商品删除
+    @RequestMapping("/deleteItemById")
+    public Result deleteItemById(Long itemId){
+       Integer deleteItemById = itemServiceFeign.deleteItemById(itemId);
+       if(deleteItemById==1){
+           return  Result.ok();
+       }
+        return Result.error("删除失败");
+    }
 }

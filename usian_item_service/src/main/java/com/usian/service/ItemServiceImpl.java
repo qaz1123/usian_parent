@@ -84,4 +84,9 @@ public class ItemServiceImpl implements ItemService {
         int tbItemParamItemNum= tbItemParamItemMapper.insertSelective(tbItemParamItem);
         return tbItemNum+tbItemDescNum+tbItemParamItemNum;
     }
+
+    @Override
+    public Integer deleteItemById(Long itemId) {
+        return tbItemMapper.deleteByPrimaryKey(itemId);
+    }
 }
