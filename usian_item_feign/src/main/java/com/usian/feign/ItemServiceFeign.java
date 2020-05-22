@@ -3,6 +3,7 @@ package com.usian.feign;
 import com.usian.pojo.TbItem;
 import com.usian.pojo.TbItemCat;
 import com.usian.pojo.TbItemParam;
+import com.usian.utis.CatResult;
 import com.usian.utis.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -63,4 +64,8 @@ public interface ItemServiceFeign {
     //商品删除
     @RequestMapping("/service/item/deleteItemById")
     Integer deleteItemById(@RequestParam Long itemId);
+
+    //商品分类菜单查询
+    @RequestMapping("/service/itemCat/selectItemCategoryAll")
+    CatResult selectItemCategoryAll();
 }
