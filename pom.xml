@@ -24,6 +24,7 @@
         <module>usian_content_feign</module>
         <module>usian_content_web</module>
         <module>usian_portal_web</module>
+        <module>common_redis</module>
     </modules>
 
     <!--Spring Boot 父工程 定义了各个版本的版本号   web启动器是一堆依赖的集合-->
