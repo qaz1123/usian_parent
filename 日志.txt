@@ -150,3 +150,22 @@
         8.4.8.highlight查询
             8.4.8.1.api
             8.4.8.2.java client
+---------------2020年6月4日----------------
+es集群搭建
+   a、集群结构：es集群至少两台
+   b、搭建步骤
+     1、拷贝节点2，命名为ElasticSearch-2
+     2、删除节点2的data目录
+     3、修改elasticsearch.yml：
+		node.name: usian_node_2
+		discovery.zen.ping.unicast.hosts: ["192.168.233.134:9300", "192.168.233.135:9300"]
+     4、测试
+	 启动两台节点：自动分配分片
+	 关闭节点2：集群是高可用的
+	 创建备份分配：备份分配和主分片不在同一个节点上
+商品搜索
+创建：usian_search_web
+     usian_search_feign
+     usian_search_service
+在usian_search_service的配置文件里配置 ES集群
+完成 商品一键导入功能
