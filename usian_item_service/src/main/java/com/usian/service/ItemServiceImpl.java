@@ -7,11 +7,13 @@ import com.usian.mapper.TbItemDescMapper;
 import com.usian.mapper.TbItemMapper;
 import com.usian.mapper.TbItemParamItemMapper;
 import com.usian.pojo.*;
+import com.usian.redis.RedisClient;
 import com.usian.utis.IDUtils;
 import com.usian.utis.PageResult;
 import org.bouncycastle.crypto.tls.TlsDHUtils;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,9 +41,33 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private AmqpTemplate amqpTemplate;
 
+    @Value("${ITEM_INFO}")
+    private String ITEM_INFO;
+
+    @Value("${BASE}")
+    private String BASE;
+
+    @Value("${DESC}")
+    private String DESC;
+
+    @Value("${ITEM_INFO_EXPIRE}")
+    private Long ITEM_INFO_EXPIRE;
+
+    @Autowired
+    private RedisClient redisClient;
+
     @Override
     public TbItem selectItemInfo(Long itemId) {
-        return tbItemMapper.selectByPrimaryKey(itemId);
+        //先从redis查询，有就直接返回
+        TbItem tbItem = (TbItem) redisClient.get(ITEM_INFO + ":" + itemId + ":" + BASE);
+        if(tbItem!=null){
+            return  tbItem;
+        }
+        //查询不到去数据库 ，然后保存到resid
+        tbItem = tbItemMapper.selectByPrimaryKey(itemId);
+        redisClient.set(ITEM_INFO + ":" + itemId + ":" + BASE,tbItem);
+        redisClient.expire(ITEM_INFO + ":" + itemId + ":" + BASE,ITEM_INFO_EXPIRE);
+        return tbItem;
     }
 
     @Override
@@ -146,6 +172,20 @@ public class ItemServiceImpl implements ItemService {
         criteria.andItemIdEqualTo(tbItemParamItem.getItemId());
         int tbItemParamItemNum= tbItemParamItemMapper.updateByExampleSelective(tbItemParamItem,tbItemParamItemExample);
         return tbItemNum+tbItemDescNum+tbItemParamItemNum;
+    }
+
+    @Override
+    public TbItemDesc selectItemDescByItemId(Long itemId) {
+        //先从redis查询，有就直接返回
+        TbItemDesc tbItemDesc = (TbItemDesc) redisClient.get(ITEM_INFO + ":" + itemId + ":" + DESC);
+        if(tbItemDesc!=null){
+            return tbItemDesc;
+        }
+        //查询不到去数据库 ，然后保存到resid
+        tbItemDesc = tbItemDescMapper.selectByPrimaryKey(itemId);
+        redisClient.set(ITEM_INFO + ":" + itemId + ":" + DESC,tbItemDesc);
+        redisClient.expire(ITEM_INFO + ":" + itemId + ":" + DESC,ITEM_INFO_EXPIRE);
+        return tbItemDesc;
     }
 
 
