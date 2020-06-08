@@ -50,8 +50,17 @@ public class ItemServiceImpl implements ItemService {
     @Value("${DESC}")
     private String DESC;
 
+    @Value("${PARAM}")
+    private String PARAM;
+
     @Value("${ITEM_INFO_EXPIRE}")
     private Long ITEM_INFO_EXPIRE;
+
+    @Value("${SETNX_BASE_LOCK_KEY}")
+    private String SETNX_BASE_LOCK_KEY;
+
+    @Value("${SETNX_DESC_LOCK_KEY}")
+    private String SETNX_DESC_LOCK_KEY;
 
     @Autowired
     private RedisClient redisClient;
@@ -65,9 +74,29 @@ public class ItemServiceImpl implements ItemService {
         }
         //查询不到去数据库 ，然后保存到resid
         tbItem = tbItemMapper.selectByPrimaryKey(itemId);
-        redisClient.set(ITEM_INFO + ":" + itemId + ":" + BASE,tbItem);
-        redisClient.expire(ITEM_INFO + ":" + itemId + ":" + BASE,ITEM_INFO_EXPIRE);
-        return tbItem;
+        /*******解决缓存击穿*******/
+        if(redisClient.setnx(SETNX_BASE_LOCK_KEY+":"+itemId,itemId,30)){
+            if(tbItem!=null){
+                redisClient.set(ITEM_INFO + ":" + itemId + ":" + BASE,tbItem);
+                redisClient.expire(ITEM_INFO + ":" + itemId + ":" + BASE,ITEM_INFO_EXPIRE);
+
+            }else{
+                /*****解决缓存穿透******/
+                redisClient.set(ITEM_INFO + ":" + itemId + ":" + BASE,null);
+                redisClient.expire(ITEM_INFO + ":" + itemId + ":" + BASE,30L);
+            }
+           redisClient.del(SETNX_BASE_LOCK_KEY+":"+itemId);
+            return tbItem;
+        }else {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return selectItemInfo(itemId);
+        }
+
+
     }
 
     @Override
@@ -122,6 +151,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Integer deleteItemById(Long itemId) {
+        redisClient.del(ITEM_INFO + ":" + itemId + ":" + BASE);
+        redisClient.del(ITEM_INFO + ":" + itemId + ":" + DESC);
+        redisClient.del(ITEM_INFO + ":" + itemId + ":" + PARAM);
         return tbItemMapper.deleteByPrimaryKey(itemId);
     }
 
@@ -171,6 +203,9 @@ public class ItemServiceImpl implements ItemService {
         TbItemParamItemExample.Criteria criteria = tbItemParamItemExample.createCriteria();
         criteria.andItemIdEqualTo(tbItemParamItem.getItemId());
         int tbItemParamItemNum= tbItemParamItemMapper.updateByExampleSelective(tbItemParamItem,tbItemParamItemExample);
+        redisClient.del(ITEM_INFO + ":" + tbItem.getId() + ":" + BASE);
+        redisClient.del(ITEM_INFO + ":" + tbItem.getId() + ":" + DESC);
+        redisClient.del(ITEM_INFO + ":" + tbItem.getId() + ":" + PARAM);
         return tbItemNum+tbItemDescNum+tbItemParamItemNum;
     }
 
@@ -183,10 +218,26 @@ public class ItemServiceImpl implements ItemService {
         }
         //查询不到去数据库 ，然后保存到resid
         tbItemDesc = tbItemDescMapper.selectByPrimaryKey(itemId);
-        redisClient.set(ITEM_INFO + ":" + itemId + ":" + DESC,tbItemDesc);
-        redisClient.expire(ITEM_INFO + ":" + itemId + ":" + DESC,ITEM_INFO_EXPIRE);
-        return tbItemDesc;
-    }
+        if(redisClient.setnx(SETNX_DESC_LOCK_KEY+":"+itemId,itemId,30)){
+            if(tbItemDesc!=null){
+                redisClient.set(ITEM_INFO + ":" + itemId + ":" + DESC,tbItemDesc);
+                redisClient.expire(ITEM_INFO + ":" + itemId + ":" + DESC,ITEM_INFO_EXPIRE);
 
+            }else {
+                /*****解决缓存穿透******/
+                redisClient.set(ITEM_INFO + ":" + itemId + ":" + DESC,null);
+                redisClient.expire(ITEM_INFO + ":" + itemId + ":" + DESC,30L);
+            }
+            redisClient.del(SETNX_DESC_LOCK_KEY+":"+itemId);
+            return tbItemDesc;
+        }else {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return selectItemDescByItemId(itemId);
+        }
+    }
 
 }

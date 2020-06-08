@@ -35,6 +35,9 @@ public class ItemParamServiceImpl implements ItemParamService {
     @Value("${ITEM_INFO_EXPIRE}")
     private Long ITEM_INFO_EXPIRE;
 
+    @Value("${SETNX_PARAM_LOCK_KEY}")
+    private String SETNX_PARAM_LOCK_KEY;
+
     @Autowired
     private RedisClient redisClient;
 
@@ -105,12 +108,25 @@ public class ItemParamServiceImpl implements ItemParamService {
         TbItemParamItemExample.Criteria criteria = tbItemParamItemExample.createCriteria();
         criteria.andItemIdEqualTo(itemId);
         List<TbItemParamItem> tbItemParamItemList = tbItemParamItemMapper.selectByExampleWithBLOBs(tbItemParamItemExample);
-        if(tbItemParamItemList!=null && tbItemParamItemList.size()>0){
-            tbItemParamItem = tbItemParamItemList.get(0);
-            redisClient.set(ITEM_INFO + ":" + itemId + ":" + PARAM,tbItemParamItem);
-            redisClient.expire(ITEM_INFO + ":" + itemId + ":" + PARAM,ITEM_INFO_EXPIRE);
+        if(redisClient.setnx(SETNX_PARAM_LOCK_KEY+":"+itemId,itemId,30)){
+            if(tbItemParamItemList!=null && tbItemParamItemList.size()>0){
+                tbItemParamItem = tbItemParamItemList.get(0);
+                redisClient.set(ITEM_INFO + ":" + itemId + ":" + PARAM,tbItemParamItem);
+                redisClient.expire(ITEM_INFO + ":" + itemId + ":" + PARAM,ITEM_INFO_EXPIRE);
+
+            }else {
+                redisClient.set(ITEM_INFO + ":" + itemId + ":" + PARAM,null);
+                redisClient.expire(ITEM_INFO + ":" + itemId + ":" + PARAM,30L);
+            }
+            redisClient.del(SETNX_PARAM_LOCK_KEY+":"+itemId);
             return tbItemParamItem;
+        }else {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return selectTbItemParamItemByItemId(itemId);
         }
-        return null;
     }
 }
