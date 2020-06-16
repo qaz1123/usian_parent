@@ -123,6 +123,12 @@ public class CartController {
                 }
             }else {
                 //登录成功
+                Map<String, TbItem> cart = getCartFromRedis(userId);
+                Set<String> keySet = cart.keySet();
+                for (String itemId : keySet) {
+                    TbItem tbItem = cart.get(itemId);
+                    tbItemList.add(tbItem);
+                }
             }
             return Result.ok(tbItemList);
         }catch (Exception e){
@@ -149,6 +155,11 @@ public class CartController {
                 addClientCookie(cart,request,response);
             }else {
                 //以登录
+                Map<String, TbItem> cart = getCartFromRedis(userId);
+                TbItem tbItem = cart.get(itemId.toString());
+                tbItem.setNum(num);
+                cart.put(itemId.toString(),tbItem);
+                addCartToRedis(cart,userId);
             }
             return Result.ok();
         }catch (Exception e){
@@ -169,6 +180,9 @@ public class CartController {
                 addClientCookie(cart,request,response);
             }else {
                 //以登录
+                Map<String, TbItem> cart = getCartFromRedis(userId);
+                cart.remove(itemId.toString());
+                addCartToRedis(cart,userId);
             }
             return  Result.ok();
         }catch (Exception e){
