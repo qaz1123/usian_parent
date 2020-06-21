@@ -1,9 +1,7 @@
 package com.usian.service;
 
-import com.usian.mapper.TbItemMapper;
-import com.usian.mapper.TbOrderItemMapper;
-import com.usian.mapper.TbOrderMapper;
-import com.usian.mapper.TbOrderShippingMapper;
+import com.usian.mapper.*;
+import com.usian.mq.MQSender;
 import com.usian.pojo.*;
 import com.usian.redis.RedisClient;
 import com.usian.utis.JsonUtils;
@@ -15,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -46,6 +45,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private TbItemMapper tbItemMapper;
+
+    @Autowired
+    private LocalMessageMapper localMessageMapper;
+
+    @Autowired
+    private MQSender mqSender;
 
     @Override
     public String insertOrder(OrderInfo orderInfo) {
@@ -88,8 +93,16 @@ public class OrderServiceImpl implements OrderService {
         tbOrderShipping.setUpdated(date);
         tbOrderShippingMapper.insertSelective(tbOrderShipping);
 
-        //发布消息到mq，完成扣减库存
-        amqpTemplate.convertAndSend("order_exchange","order.add", orderId);
+
+        //把消息存入到本地消息表
+        LocalMessage localMessage = new LocalMessage();
+        localMessage.setOrderNo(orderId.toString());
+        localMessage.setTxNo(UUID.randomUUID().toString());
+        localMessage.setState(0);
+        localMessageMapper.insertSelective(localMessage);
+
+        //发送消息，修改本地消费表状态
+        mqSender.sendMsg(localMessage);
 
         //5、返回订单id
         return orderId.toString();
