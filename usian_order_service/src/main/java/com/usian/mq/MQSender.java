@@ -33,11 +33,12 @@ public class MQSender implements  ReturnCallback, ConfirmCallback {
     //下游服务消息成功调用后返回的数据
     @Override
     public void confirm(CorrelationData correlationData, boolean ack, String cause) {
-        String id = correlationData.getId();
+
         if(ack){
             //修改本地消息表的状态
+            String txNo = correlationData.getId();
             LocalMessage localMessage = new LocalMessage();
-            localMessage.setTxNo(id);
+            localMessage.setTxNo(txNo);
             localMessage.setState(1);
             localMessageMapper.updateByPrimaryKeySelective(localMessage);
         }
@@ -46,7 +47,6 @@ public class MQSender implements  ReturnCallback, ConfirmCallback {
     //发送消息
     public void sendMsg(LocalMessage localMessage) {
         RabbitTemplate rabbitTemplate = (RabbitTemplate) this.amqpTemplate;
-        rabbitTemplate.setMandatory(true);//开启消息发送失败回退
         rabbitTemplate.setReturnCallback(this);
         rabbitTemplate.setConfirmCallback(this);
         //消息id：用户消息确认成功返回后修改本地消息表的状态
