@@ -362,3 +362,30 @@ quartz集群重置问题
  				<appender-ref ref="RollingFile" />
  				<appender-ref ref="logstash" />
  			    </root>
+ ---------------2020年6月25日----------------
+ mysql主从复制、mycat读写分离、mycat分库分表
+ 1. MySQL 默认支持主(master)从(slave)功能.
+ 2. 主从复制效果：在主数据库中操作时,从同步进行变化.
+ 3. 主从复制本质：主数据的操作写入到日志中,从数据库从日志中读取,进行操作.
+二、MyCat
+	1、什么是MyCat？
+		是一个国产的数据库中间件，前身是阿里的cobar。
+	2、分库分表
+		分库：把usian拆成多个库
+		分表：把tb_order拆分到多个库里
+
+	3、mycat的核心概念
+		schema：逻辑上完整的库
+		table：逻辑上完整的表
+		dataHost：服务器
+		dataNode：服务器上的mysql
+		rule：分片规则
+	4、分片规则
+		crc32slot规则：
+			分片字段使用主键
+			tableRule：一个表一个
+			数据库节点数量
+	5、配置mycat的分库分表和读写分离
+		a、schema.xml作用：逻辑库、逻辑表、dataNode、分片规则
+		b、rule.xml：分片规则
+		c、server.xml：mycat的用户名、密码和权限
