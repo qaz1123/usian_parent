@@ -49,7 +49,7 @@ public class ItemController {
     public Result selectTbItemAllByPage(@RequestParam(defaultValue = "1") Integer page,
                                         @RequestParam(defaultValue = "2") Long rows){
         PageResult pageResult = itemServiceFeign.selectTbItemAllByPage(page,rows);
-        if(pageResult.getResult()!=null && pageResult.getResult().size()>0){
+        if(pageResult!=null && pageResult.getResult()!=null && pageResult.getResult().size()>0){
             return Result.ok(pageResult);
         }
         return Result.error("没有结果");

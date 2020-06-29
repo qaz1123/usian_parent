@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      name: usian-item-web
+      profile: dev
+      label: master
+      uri: http://127.0.0.1:3344

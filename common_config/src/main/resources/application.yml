@@ -1,0 +1,19 @@
+server:
+  port: 3344
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/qaz1123/usian-config.git
+  rabbitmq:
+    host: 192.168.205.132
+    port: 5672
+    username: admin
+    password: 1111
+    virtual-host: /
+management:
+  endpoints:
+    web:
+      exposure:
+        include: bus-refresh

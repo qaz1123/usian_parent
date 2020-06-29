@@ -39,6 +39,7 @@
         <module>usian_order_feign</module>
         <module>usian_order_web</module>
         <module>common_zuul</module>
+        <module>common_config</module>
     </modules>
 
     <!--Spring Boot 父工程 定义了各个版本的版本号   web启动器是一堆依赖的集合-->

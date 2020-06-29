@@ -389,3 +389,55 @@ quartz集群重置问题
 		a、schema.xml作用：逻辑库、逻辑表、dataNode、分片规则
 		b、rule.xml：分片规则
 		c、server.xml：mycat的用户名、密码和权限
+---------------2020年6月28日----------------
+1、swagger介绍
+	a、什么是swagger
+	swagger是实现了openapi规范的工具集，用于生产api文档并提供可视化的restful风格的web服务
+
+	2、swagger使用
+	1、pom.xml
+		springfox-swagger2
+		springfox-swagger-ui
+		2、config
+		@Configuration
+		@EnableSwagger2
+		public class SwaggerConfig{
+			 @Bean
+			 public Docket getDocket(){....}
+			private ApiInfo apiInfo(){....}
+		}
+	3、controller、pojo
+		@Api()：描述controller
+		@ApiOperation()：描述方法
+		@ApiImplicitParam()：描述参数
+		@ApiImplicitParams()：描述多个参数
+		@APIModel()：描述对象参数
+		@ApiModelProperty()：描述对象中的属性
+什么是zuul?
+zuul是Netflix开源的一个微服务网关，作用：路由、限流、过滤
+zuul作为网关层，自身也是一个微服务，和其他服务一样也要注册到eureka
+限流
+ZuulFilter抽象类：
+		run()：具体业务逻辑
+		shouldFilter()：通过一个boolean返回值设置此过滤器是否执行
+		filterOrder()：通过int返回值设置此过滤器的执行顺序
+		filterType()：通过一个String返回值设置此过滤器的执行时机
+			pre：转发请求前被调用
+			routing：转发请求时被调用
+			post：转发请求后被调用
+			error：其他三种过滤器发生错误时被调用
+容错
+客户端通过zuul无法调用consumer时，zuul可以对consumer进行降级。
+	zuul和hystrix是无缝结合的。
+---------------2020年6月29日----------------
+熔断处理
+	1、降级
+		consumer无法调用provider时，使用hystrix对provider进行降级
+	2、熔断
+		当失败率、线程池和信号量达到阀值时自动触发降级，熔断触发的降级会在指定时间后测试服务是否恢复
+分布式配置中心config
+	集中管理配置文件
+
+消息总选bus
+	运行期间当配置发生变动时，服务器不需要重启即可同步配置的变化
+
